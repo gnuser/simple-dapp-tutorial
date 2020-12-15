@@ -50,6 +50,7 @@ const accountsDiv = document.getElementById('accounts')
 const onboardButton = document.getElementById('connectButton')
 const getAccountsButton = document.getElementById('getAccounts')
 const getAccountsResults = document.getElementById('getAccountsResult')
+const getAccountBalance = document.getElementById('getAccountBalance')
 
 // Permissions Actions Section
 const requestPermissionsButton = document.getElementById('requestPermissions')
@@ -64,6 +65,7 @@ const contractStatus = document.getElementById('contractStatus')
 
 // Send Eth Section
 const sendButton = document.getElementById('sendButton')
+const batchSendButton = document.getElementById('batchSendButton')
 
 // Send Tokens Section
 const tokenAddress = document.getElementById('tokenAddress')
@@ -104,6 +106,7 @@ const initialize = async () => {
     depositButton,
     withdrawButton,
     sendButton,
+    batchSendButton,
     createToken,
     transferTokens,
     approveTokens,
@@ -152,6 +155,7 @@ const initialize = async () => {
     } else {
       deployButton.disabled = false
       sendButton.disabled = false
+      batchSendButton.disabled = false
       createToken.disabled = false
       signTypedData.disabled = false
       getEncryptionKeyButton.disabled = false
@@ -242,13 +246,36 @@ const initialize = async () => {
     sendButton.onclick = () => {
       web3.eth.sendTransaction({
         from: accounts[0],
-        to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        value: '0x29a2241af62c0000',
+        to: '0x4c0e8F21792b29Ea0fC11e8A0b0286B0e62fFCDA',
+        value: web3.toWei('0.1', 'ether'),
         gas: 21000,
         gasPrice: 20000000000,
       }, (result) => {
         console.log(result)
       })
+    }
+
+    batchSendButton.onclick = () => {
+      var batch = new web3.createBatch();
+      batch.add(web3.eth.sendTransaction({
+        from: accounts[0],
+        to: '0x4c0e8F21792b29Ea0fC11e8A0b0286B0e62fFCDA',
+        value: web3.toWei('0.1', 'ether'),
+        gas: 21000,
+        gasPrice: 20000000000,
+      }, (result) => {
+        console.log(result)
+      }));
+      batch.add(web3.eth.sendTransaction({
+        from: accounts[0],
+        to: '0x4c0e8F21792b29Ea0fC11e8A0b0286B0e62fFCDA',
+        value: web3.toWei('0.2', 'ether'),
+        gas: 21000,
+        gasPrice: 20000000000,
+      }, (result) => {
+        console.log(result)
+      }));
+      batch.execute();
     }
 
     /**
@@ -430,6 +457,13 @@ const initialize = async () => {
           method: 'eth_accounts',
         })
         getAccountsResults.innerHTML = _accounts[0] || 'Not able to get accounts'
+        if(_accounts[0]) {
+          const _balance = await ethereum.request({
+            method: 'eth_getBalance',
+            params: [ _accounts[0], 'latest'],
+          })
+          getAccountBalance.innerHTML = web3.fromWei(_balance, 'ether') + " ETH";
+        }
       } catch (err) {
         console.error(err)
         getAccountsResults.innerHTML = `Error: ${err.message}`
