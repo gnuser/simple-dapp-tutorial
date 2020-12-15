@@ -216,7 +216,7 @@ const initialize = async () => {
             contract.deposit(
               {
                 from: accounts[0],
-                value: '0x3782dace9d900000',
+                value: web3.toWei('0.1', 'ether'),
               },
               (result) => {
                 console.log(result)
@@ -226,7 +226,7 @@ const initialize = async () => {
           }
           withdrawButton.onclick = () => {
             contract.withdraw(
-              '0xde0b6b3a7640000',
+              web3.toWei('0.1', 'ether'),
               { from: accounts[0] },
               (result) => {
                 console.log(result)
